@@ -1,11 +1,12 @@
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
+
+const runUntilOneOfEach = process.env.RUN_UNTIL_ONE_OF_EACH == "true";
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
     (async () => {
         while (true) {
-            await fetch("https://discord.com/api/v9/users/@me/lootboxes/open", {
+            const response = await fetch("https://discord.com/api/v9/users/@me/lootboxes/open", {
                 "credentials": "include",
                 "headers": {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
@@ -29,6 +30,44 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
                 "mode": "cors"
             });
 
+            if (!response.ok) {
+                console.log("Received non-ok result, breaking");
+
+                break;
+            }
+
+            const result = await response.json();
+            if (!("user_lootbox_data" in result)) {
+                console.log("Received result does not have user_lootbox_data key");
+
+                break;
+            }
+
+            const user_lootbox_data = result["user_lootbox_data"];
+            if (!("opened_items" in user_lootbox_data)) {
+                console.log("Received user_lootbox_data does not have opened_items key");
+
+                break;
+            }
+
+            if (runUntilOneOfEach) {
+                let hasAll = true;
+                for (const count of Object.values(user_lootbox_data)) {
+                    if (count <= 0) {
+                        hasAll = false;
+    
+                        break;
+                    }
+                }
+
+                if (hasAll) {
+                    console.log("We have all of them, breaking");
+
+                    break;
+                }
+            }
+
+            console.log(`State: ${JSON.stringify(user_lootbox_data)}`);
             await delay(3000);
         }
     })();
