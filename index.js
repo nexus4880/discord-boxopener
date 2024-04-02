@@ -73,9 +73,10 @@ if (baseWaitTimeInMs < 1000) {
             break;
         }
 
+        const opened_items = user_lootbox_data["opened_items"];
         if (runUntilOneOfEach) {
             let hasAll = true;
-            for (const count of Object.values(user_lootbox_data)) {
+            for (const count of Object.values(opened_items)) {
                 if (count <= 0) {
                     hasAll = false;
 
