@@ -2,6 +2,9 @@ require('dotenv').config();
 
 const runUntilOneOfEach = process.env.RUN_UNTIL_ONE_OF_EACH == "true";
 let baseWaitTimeInMs = parseInt(process.env.BASE_WAIT_TIME_IN_MS);
+if (isNaN(baseWaitTimeInMs)) {
+    baseWaitTimeInMs = 0;
+}
 
 const options = {
     "credentials": "include",
@@ -44,7 +47,7 @@ if (baseWaitTimeInMs < 1000) {
 
         if (!response.ok) {
             if ("retry_after" in result) {
-                const rateLimitTime = result["retry_after"] * 1000;
+                const rateLimitTime = (result["retry_after"] + 1) * 1000;
                 console.log(`Rate limited, waiting for ${rateLimitTime}ms`);
                 await delay(rateLimitTime);
 
