@@ -1,6 +1,8 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
     (async () => {
         while (true) {
             await fetch("https://discord.com/api/v9/users/@me/lootboxes/open", {
@@ -26,5 +28,7 @@ dotenv.config();
                 "method": "POST",
                 "mode": "cors"
             });
+
+            await delay(3000);
         }
     })();
